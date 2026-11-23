@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cvdez"
+version = "1.0.0"
+description = "A step-by-step tutorial for the CVD cancer gene therapy vector designer"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = []
+
+[project.scripts]
+cvdez = "cvdez.cli:main"
+
+[tool.setuptools]
+packages = ["cvdez", "cvd", "cvd.parts", "cvd.design", "cvd.export", "cvd.cnv", "cvd.ranking", "cvd.cli", "cvd.gui"]
+
+[tool.setuptools.package-data]
+cvdez = ["data/*.seg"]

@@ -1,0 +1,22 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+
+# PyInstaller
+build/
+dist/
+
+# Test and tool caches
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Designer output written next to the source during ad-hoc runs
+/*.gb
+/*.fasta
+/*.svg
+/designs/
