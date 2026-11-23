@@ -32,3 +32,5 @@ jobs:
         run: python -m unittest discover -v -s tests
       - name: Run the whole tutorial without questions
         run: python -m cvdez --auto --out tutorial_out
+      - name: List the steps
+        run: python -m cvdez --list

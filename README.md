@@ -8,6 +8,22 @@ The example: a replacement copy of **TP53** (a tumor suppressor) for a tumor tha
 
 Standard library only. Python 3.8 or newer. Nothing to install.
 
+## How it works
+
+CVDEZ opens the **real CVD window** and puts a small **coach window** beside it. The coach points at each control with an
+orange outline and tells you what it is, what it does and why it is there. You never leave the real program: every click you
+make changes the real design.
+
+- **Part 1, tour of every control (35 steps).** One step per control: vector type, strategy, gene, variant, insert box, Load
+  file / Clear, the Guide RNA and CAR boxes, promoter, tag, reporter, linker, polyadenylation, bacterial selection, WPRE,
+  Kozak, short WPRE, vector name, the Design tab (map, element table, checks, export buttons), and the Vector options tab
+  (delivery setting, modifications switch, gallery, ranked list, "Why this ranking", "Modifications", option buttons).
+- **Part 2, build your own example (27 steps).** You make a gene therapy yourself. The coach says what to click, and **Next**
+  unlocks only when you have done it (or press **Skip this step**). The path: open the Aneuploidy analysis window and learn
+  each of its controls, analyze a practice tumor, pick "Replace TP53", send it to the designer, choose AAV, compare ranked
+  options, read "Why this ranking" and "Modifications", open a prebuilt vector, use the top option, name it, check it, and
+  **export** the files.
+
 ## Quick start
 
 ```
@@ -16,17 +32,22 @@ cd CVDEZ
 python -m cvdez
 ```
 
-Or run the single-file version, with no folders needed: `python cvdez.pyz`
+Or run the single-file version: `python cvdez.pyz`
 
-At every question, press **Enter** to take the suggested answer, type a number to choose another, or type **q** to leave.
+The window needs **tkinter** (included with Python on Windows and macOS; on Debian/Ubuntu run `sudo apt install python3-tk`).
+Without tkinter or a display, CVDEZ falls back to a text-only tutorial.
 
 | Command | What it does |
 |---------|--------------|
-| `python -m cvdez` | Start the tutorial |
-| `python -m cvdez --list` | List the ten lessons |
-| `python -m cvdez --lesson 7` | Start at lesson 7 (earlier steps are filled in with defaults) |
-| `python -m cvdez --auto` | Play the whole tutorial with default answers, no questions |
-| `python -m cvdez --out DIR` | Choose where files are written (default `cvdez_output`) |
+| `python -m cvdez` | Open CVD with the coach (starts at Part 1) |
+| `python -m cvdez --part 2` | Start straight at Part 2, building your own example |
+| `python -m cvdez --out DIR` | Folder for the practice tumor file (default `cvdez_output`) |
+| `python -m cvdez --list` | List every step of both tutorials |
+| `python -m cvdez --console` | Use the text-only tutorial in the terminal |
+| `python -m cvdez --console --auto` | Play the text tutorial with default answers (no questions) |
+
+In the coach: **Back** and **Next** move between steps, **Skip the tour** jumps to Part 2, **Close coach** leaves the CVD window
+open for your own work. You can drag the coach window anywhere.
 
 ## What is a gene therapy vector?
 
@@ -38,38 +59,26 @@ A vector is a delivery truck for a gene. CVDEZ teaches five ideas that explain a
 4. **Cassette**: everything that gets packaged: promoter, insert and helper parts.
 5. **Capacity**: the size of the truck bed. AAV holds about 4.7 kb and lentivirus about 8 kb. A cassette that is too big does not fit.
 
-## The ten lessons
-
-| # | Lesson | What you do |
-|---|--------|-------------|
-| 1 | Welcome | Learn what the tool is, and what it is not |
-| 2 | The five words you need | Vector, insert, promoter, cassette, capacity |
-| 3 | Look at the tumor | Read an aneuploidy report for a practice tumor or real open data (TCGA-CHOL W5-AA2X-01) |
-| 4 | Turn findings into a plan | Choose a suggested therapy; the example is "Replace TP53" |
-| 5 | The insert | See how the sequence checker works, using a tiny made-up sequence |
-| 6 | Pick the delivery setting | In vivo, ex vivo, or not specified |
-| 7 | Ranked vector options and why | Read the scores for six prebuilt options and why each ranks where it does |
-| 8 | Modifications | See which improvements were applied, and which were considered and skipped |
-| 9 | Build the vector and read the map | Every part, its position, size and job, plus the design checks |
-| 10 | Export and what comes next | The files written, and the one command that repeats your example |
-
-Everything shown after a `|` mark on screen is the real output of the CVD engine, not a mock-up.
-
 ## What you get at the end
 
-The tutorial writes real files into the output folder:
+At the end of Part 2 you export, with the real **Export files...** button, four files named after your vector:
 
-- an aneuploidy report and per-arm table for the tumor
-- a ranked vector options report
-- `design/`: the finished vector as a GenBank file (opens in SnapGene, Benchling, ApE), a FASTA file, an SVG circular map and a text summary
+- a GenBank file `.gb` (opens in SnapGene, Benchling, ApE)
+- a FASTA file `.fasta`
+- an SVG circular map `.svg`
+- a text summary `.txt` with the checks and the reasoning behind the design
 
 ## Repository layout
 
 ```
-cvdez/      the tutorial: lessons, console helpers, plain-language glossary,
-            and the bundled open-data tumor file
-cvd/        the CVD engine the tutorial drives (a copy of CVD v1.2.0)
-tests/      tests that run the whole tutorial
+cvdez/      the tutorial
+  steps.py    all the lesson text (what / does / why / task) and the "is it done?" checks
+  tutorial.py the step-by-step state machine (no tkinter)
+  coach.py    the coach window and the orange outline
+  app.py      the real CVD window, with three small hooks that record what you have done
+  lessons.py, ui.py, glossary.py   the text-only fallback tutorial and its bundled TCGA tumor file
+cvd/        the CVD engine the tutorial drives (a copy of CVD v1.2.0; the tutorial window IS this program's window)
+tests/      tests, including a simulated learner who builds and exports the example
 cvdez.pyz   the tutorial as a single runnable file
 ```
 
@@ -87,3 +96,10 @@ until you supply verified sequences, so the files are not ready to order. Making
 A medicine for patients needs GMP manufacturing, preclinical safety data and regulatory authorization. Suggestions follow known
 gene locations and published associations and do not predict response. Arm-level loss does not prove a gene is inactive, so
 confirm with mutation and expression data.
+
+## Testing note
+
+The tests drive the real CVD window code through stand-in widgets, so they run without a display. They check that every step
+has text, every outline target exists, each hands-on step is locked until it is done, and that a simulated learner really builds
+and exports the example. They cannot show how the orange outline looks on a real screen. If an outline is misplaced on your
+machine, please open an issue; the lesson text is unaffected.

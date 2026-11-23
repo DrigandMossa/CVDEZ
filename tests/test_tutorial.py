@@ -30,7 +30,7 @@ class AutoRun(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.tmp = tempfile.mkdtemp()
-        cls.status, cls.text = run(["--auto", "--out", cls.tmp])
+        cls.status, cls.text = run(["--console", "--auto", "--out", cls.tmp])
 
     def test_finishes(self):
         self.assertEqual(self.status, 0)
@@ -66,17 +66,17 @@ class Interactive(unittest.TestCase):
     def test_choices_from_stdin(self):
         tmp = tempfile.mkdtemp()
         # Enter, Enter (the two opening pauses), then 2 = the real TCGA tumor, then Enter for every other prompt.
-        status, text = run(["--out", tmp], "\n\n2\n" + "\n" * 40)
+        status, text = run(["--console", "--out", tmp], "\n\n2\n" + "\n" * 40)
         self.assertEqual(status, 0)
         self.assertIn("TCGA-W5-AA2X-01", text)
 
     def test_quit_is_clean(self):
-        status, text = run(["--out", tempfile.mkdtemp()], "q\n")
+        status, text = run(["--console", "--out", tempfile.mkdtemp()], "q\n")
         self.assertEqual(status, 0)
         self.assertIn("Leaving the tutorial", text)
 
     def test_end_of_input_takes_defaults(self):
-        status, text = run(["--out", tempfile.mkdtemp()], "")
+        status, text = run(["--console", "--out", tempfile.mkdtemp()], "")
         self.assertEqual(status, 0)
         self.assertIn("Lesson 10 of 10", text)
 
@@ -89,7 +89,8 @@ class Options(unittest.TestCase):
     def test_list(self):
         status, text = run(["--list"])
         self.assertEqual(status, 0)
-        self.assertEqual(len(text.strip().splitlines()), len(LESSONS))
+        self.assertIn("Window tutorial", text)
+        self.assertIn("Text tutorial", text)
 
     def test_start_at_lesson(self):
         status, text = run(["--auto", "--lesson", "9", "--out", tempfile.mkdtemp()])
